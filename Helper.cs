@@ -47,7 +47,20 @@ namespace VisualImageDiff
 
         public static int Clamp0_255(this int value)
         {
-            return (value < 0) ? 0 : (value > 255) ? 255 : value;
+            return value.Clamp(0, 255);
+        }
+
+        public static float Clamp0_255(this float value)
+        {
+            return value.Clamp(0, 255);
+        }
+
+        //http://stackoverflow.com/a/2683487/758666
+        public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>
+        {
+            if (val.CompareTo(min) < 0) return min;
+            else if (val.CompareTo(max) > 0) return max;
+            else return val;
         }
     }
 }

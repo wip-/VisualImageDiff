@@ -62,6 +62,12 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DiffFunctions\CachedDiffFunction.cs" />
+    <Compile Include="DiffFunctions\GrayScaleDiff.cs" />
+    <Compile Include="DiffFunctions\HueDiff.cs" />
+    <Compile Include="DiffFunctions\IDiffFunction.cs" />
+    <Compile Include="DiffFunctions\SaturationDiff.cs" />
+    <Compile Include="DiffFunctions\RgbDiff.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

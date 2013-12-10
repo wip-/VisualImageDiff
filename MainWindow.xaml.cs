@@ -17,6 +17,9 @@ using System.Windows.Navigation;
 using System.Runtime.InteropServices;
 using System.Windows.Media;
 using System.Windows.Controls;
+using VisualImageDiff.DiffFunctions;
+using System.Runtime.CompilerServices;
+using System.ComponentModel;
 
 //using ScrollChangedEventArgs = System.Windows.Controls.ScrollChangedEventArgs;
 //using ScrollViewer = System.Windows.Controls.ScrollViewer;
@@ -37,9 +40,12 @@ namespace VisualImageDiff
         BitmapInfo bitmapInfoRight;
         BitmapInfo bitmapInfoDiff;
 
+        ConnectionViewModel connectionViewModel = new ConnectionViewModel();
+
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = connectionViewModel;
         }
 
         private void MyCatch(System.Exception ex)
@@ -79,12 +85,17 @@ namespace VisualImageDiff
             }
         }
 
+        private void ComboBoxDiffFunction_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            CreateDiff();
+        }
 
         private void CreateDiff()
         {
             if (bitmapLeft != null && bitmapRight != null)
             {
-                bitmapInfoDiff = BitmapInfo.CreateDiff(bitmapInfoLeft, bitmapInfoRight);
+                bitmapInfoDiff = 
+                    connectionViewModel.SelectedDiffFunction.CreateDiff(bitmapInfoLeft, bitmapInfoRight);
                 ImageDiff.Source =
                     Imaging.CreateBitmapSourceFromHBitmap(
                     bitmapInfoDiff.ToBitmap().GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
@@ -166,15 +177,38 @@ namespace VisualImageDiff
             }
         }
 
-        private void SliderZoom_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void SliderZoomOut_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+           if(SliderZoomOut.Value!=1)
+               Zoom(SliderZoomOut.Value);
+           if (SliderZoomIn!=null)
+            SliderZoomIn.Value = 1;
+        }
+
+        private void SliderZoomIn_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (SliderZoomIn.Value != 1)
+                Zoom(SliderZoomIn.Value);
+            if (SliderZoomOut != null)
+            SliderZoomOut.Value = 1;
+        }
+
+        private void ButtonResetZoom_Click(object sender, RoutedEventArgs e)
+        {
+            Zoom(1);
+            SliderZoomIn.Value = 1;
+            SliderZoomOut.Value = 1;
+        }
+
+        private void Zoom(double val)
         {
             try
             {
                 ScaleTransform myScaleTransform = new ScaleTransform();
-                myScaleTransform.ScaleY = SliderZoom.Value;
-                myScaleTransform.ScaleX = SliderZoom.Value;
+                myScaleTransform.ScaleY = val;
+                myScaleTransform.ScaleX = val;
                 if (LabelZoom != null)
-                    LabelZoom.Content = SliderZoom.Value;
+                    LabelZoom.Content = val;
                 TransformGroup myTransformGroup = new TransformGroup();
                 myTransformGroup.Children.Add(myScaleTransform);
 
@@ -196,10 +230,8 @@ namespace VisualImageDiff
         }
 
 
-        private void ButtonResetZoom_Click(object sender, RoutedEventArgs e)
-        {
-            SliderZoom.Value = 1;
-        }
+
+
 
 
         private void ImageLeft_MouseMove(object sender, MouseEventArgs e)
@@ -240,6 +272,57 @@ namespace VisualImageDiff
                     color.A, color.R, color.G, color.B);
             }
         }
+
+
+        /// <summary>
+        /// Wraps DiffFunctions list
+        /// </summary>
+        public class ConnectionViewModel : ViewModelBase
+        {
+            public ConnectionViewModel()
+            {
+                diffFunctions = new List<IDiffFunction>();
+                diffFunctions.Add(new RgbDiff());
+                diffFunctions.Add(new HueDiff());
+                diffFunctions.Add(new SaturationDiff());
+                SelectedDiffFunction = diffFunctions[0];
+            }
+
+            private readonly IList<IDiffFunction> diffFunctions;
+            public IEnumerable<IDiffFunction> DiffFunctions { get { return diffFunctions; } }
+
+            private IDiffFunction selectedDiffFunction;
+            public IDiffFunction SelectedDiffFunction
+            {
+                get { return selectedDiffFunction; }
+                set { SetValue(ref selectedDiffFunction, value); }
+            }
+        }
+
+        public abstract class ViewModelBase : INotifyPropertyChanged
+        {
+            protected bool SetValue<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+            {
+                if (EqualityComparer<T>.Default.Equals(field, value))
+                    return false;
+
+                field = value;
+                OnPropertyChanged(propertyName);
+
+                return true;
+            }
+
+            protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            {
+                var handler = PropertyChanged;
+                if (handler != null)
+                    handler(this, new PropertyChangedEventArgs(propertyName));
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+        }
+
+
 
     }
 

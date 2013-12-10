@@ -71,34 +71,6 @@ namespace VisualImageDiff
             return bitmap;
         }
 
-        public static BitmapInfo CreateDiff(BitmapInfo left, BitmapInfo right)
-        {
-            BitmapInfo bitmapInfoDiff = new BitmapInfo(
-                Math.Max(left.Width, right.Width),
-                Math.Max(left.Height, right.Height),
-                PixelFormat.Format24bppRgb);
-
-            for (int y = 0; y < bitmapInfoDiff.Height; y++)
-            {
-                for (int x = 0; x < bitmapInfoDiff.Width; x++)
-                {
-                    Color colorLeft = left.GetPixelColor(x, y);
-                    Color colorRight = right.GetPixelColor(x, y);
-                    Color colorDiff = Helper.GetColorDiff(colorLeft, colorRight);
-                    bitmapInfoDiff.SetPixelColor(x, y, colorDiff);
-                }
-            }
-
-            // remap colors -> TODO
-            // TODO also: a heat map version / combobox to select different visualization modes
-            
-
-
-
-
-            return bitmapInfoDiff;
-        }
-
 
         // Get index of pixel in Data array from its coordinates
         private Int32 GetPixelInternalIndex(int x, int y)

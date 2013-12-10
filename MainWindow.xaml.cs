@@ -214,7 +214,7 @@ namespace VisualImageDiff
 
         private void ImageDiff_MouseMove(object sender, MouseEventArgs e)
         {
-            Image_MouseMove(ImageRight, e);
+            Image_MouseMove(ImageDiff, e);
         }
 
 

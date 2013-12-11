@@ -20,6 +20,7 @@ using System.Windows.Controls;
 using VisualImageDiff.DiffFunctions;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
+using Microsoft.Win32;
 
 //using ScrollChangedEventArgs = System.Windows.Controls.ScrollChangedEventArgs;
 //using ScrollViewer = System.Windows.Controls.ScrollViewer;
@@ -35,10 +36,13 @@ namespace VisualImageDiff
     {
         Bitmap bitmapLeft;
         Bitmap bitmapRight;
+        Bitmap bitmapDiff;
 
         BitmapInfo bitmapInfoLeft;
         BitmapInfo bitmapInfoRight;
         BitmapInfo bitmapInfoDiff;
+
+        String imageSourceFileNameFirst;
 
         ConnectionViewModel connectionViewModel = new ConnectionViewModel();
 
@@ -96,9 +100,10 @@ namespace VisualImageDiff
             {
                 bitmapInfoDiff = 
                     connectionViewModel.SelectedDiffFunction.CreateDiff(bitmapInfoLeft, bitmapInfoRight);
+                bitmapDiff = bitmapInfoDiff.ToBitmap();
                 ImageDiff.Source =
                     Imaging.CreateBitmapSourceFromHBitmap(
-                    bitmapInfoDiff.ToBitmap().GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                    bitmapDiff.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
             }
         }
 
@@ -117,6 +122,8 @@ namespace VisualImageDiff
                     return "Too many files!";
 
                 String imageSourceFileName = files[0];
+                if (imageSourceFileNameFirst == null)
+                    imageSourceFileNameFirst = imageSourceFileName;
 
                 if (!File.Exists(imageSourceFileName))
                     return "Not a file!";
@@ -274,52 +281,34 @@ namespace VisualImageDiff
         }
 
 
-        /// <summary>
-        /// Wraps DiffFunctions list
-        /// </summary>
-        public class ConnectionViewModel : ViewModelBase
+
+
+
+
+        private void ButtonSaveDiff_Click(object sender, RoutedEventArgs e)
         {
-            public ConnectionViewModel()
-            {
-                diffFunctions = new List<IDiffFunction>();
-                diffFunctions.Add(new RgbDiff());
-                diffFunctions.Add(new HueDiff());
-                diffFunctions.Add(new SaturationDiff());
-                SelectedDiffFunction = diffFunctions[0];
-            }
+            if (bitmapDiff == null)
+                return;
 
-            private readonly IList<IDiffFunction> diffFunctions;
-            public IEnumerable<IDiffFunction> DiffFunctions { get { return diffFunctions; } }
+            SaveFileDialog dialogSaveFile = new SaveFileDialog();
+            dialogSaveFile.Filter = "Supported images|*.png";
+            dialogSaveFile.InitialDirectory = Path.GetDirectoryName(imageSourceFileNameFirst);
+            dialogSaveFile.FileName = AddToFileName(imageSourceFileNameFirst, "-diff");
 
-            private IDiffFunction selectedDiffFunction;
-            public IDiffFunction SelectedDiffFunction
+            if ((bool)dialogSaveFile.ShowDialog())
             {
-                get { return selectedDiffFunction; }
-                set { SetValue(ref selectedDiffFunction, value); }
+                Stream saveStream;
+                if ((saveStream = dialogSaveFile.OpenFile()) != null)
+                {
+                    bitmapDiff.Save(saveStream, ImageFormat.Png);
+                    saveStream.Close();
+                }
             }
         }
 
-        public abstract class ViewModelBase : INotifyPropertyChanged
+        String AddToFileName(String filename, String addChars)
         {
-            protected bool SetValue<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-            {
-                if (EqualityComparer<T>.Default.Equals(field, value))
-                    return false;
-
-                field = value;
-                OnPropertyChanged(propertyName);
-
-                return true;
-            }
-
-            protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-            {
-                var handler = PropertyChanged;
-                if (handler != null)
-                    handler(this, new PropertyChangedEventArgs(propertyName));
-            }
-
-            public event PropertyChangedEventHandler PropertyChanged;
+            return Path.GetFileNameWithoutExtension(filename) + addChars + Path.GetExtension(filename);
         }
 
 

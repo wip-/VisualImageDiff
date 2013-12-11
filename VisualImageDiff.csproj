@@ -62,12 +62,24 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ConnectionViewModel.cs" />
     <Compile Include="DiffFunctions\CachedDiffFunction.cs" />
-    <Compile Include="DiffFunctions\GrayScaleDiff.cs" />
-    <Compile Include="DiffFunctions\HueDiff.cs" />
+    <Compile Include="DiffFunctions\CurveFunctions\BlueDiffCurve.cs" />
+    <Compile Include="DiffFunctions\CurveFunctions\HsvColorCurves\HsvColorHDiffCurve.cs" />
+    <Compile Include="DiffFunctions\CurveFunctions\HsvColorCurves\HsvColorSDiffCurve.cs" />
+    <Compile Include="DiffFunctions\CurveFunctions\HsvColorCurves\HsvColorVDiffCurve.cs" />
+    <Compile Include="DiffFunctions\CurveFunctions\MsdnColorCurves\MsdnColorBrightnessDiffCurve.cs" />
+    <Compile Include="DiffFunctions\CurveFunctions\CurveFunction.cs" />
+    <Compile Include="DiffFunctions\CurveFunctions\GreenDiffCurve.cs" />
+    <Compile Include="DiffFunctions\CurveFunctions\MsdnColorCurves\MsdnColorHueDiffCurve.cs" />
+    <Compile Include="DiffFunctions\CurveFunctions\RedRatioCurve.cs" />
+    <Compile Include="DiffFunctions\CurveFunctions\MsdnColorCurves\MsdnColorSaturationDiffCurve.cs" />
+    <Compile Include="DiffFunctions\GrayscaleFunctions\GrayscaleFunction.cs" />
+    <Compile Include="DiffFunctions\GrayscaleFunctions\MsdnHsbHDiffGrayscale.cs" />
     <Compile Include="DiffFunctions\IDiffFunction.cs" />
-    <Compile Include="DiffFunctions\SaturationDiff.cs" />
-    <Compile Include="DiffFunctions\RgbDiff.cs" />
+    <Compile Include="DiffFunctions\CurveFunctions\RedDiffCurve.cs" />
+    <Compile Include="DiffFunctions\GrayscaleFunctions\MsdnHsbSDiffGrayscale.cs" />
+    <Compile Include="DiffFunctions\ColorFunctions\RgbDiff.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -102,6 +114,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

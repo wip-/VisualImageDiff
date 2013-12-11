@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace VisualImageDiff.DiffFunctions
 {
-    class SaturationDiff : GrayScaleDiff
+    class MsdnHsbSDiffGrayscale : GrayscaleDiff
     {
-        public override String Name { get { return "Saturation Diff"; } }
+        public override String Name { get { return "Msdn HSB S Diff Grayscale"; } }
 
         protected override byte GetGrayScaleDiff(Color left, Color right)
         {

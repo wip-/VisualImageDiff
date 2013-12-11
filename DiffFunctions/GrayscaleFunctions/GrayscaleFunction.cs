@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 namespace VisualImageDiff.DiffFunctions
 {
     /// <summary>
-    /// Base class for diff functions that output a grayscale value
+    /// Base class for functions that output a grayscale value
     /// </summary>
-    public abstract class GrayScaleDiff : CachedDiffFunction
+    public abstract class GrayscaleDiff : CachedDiffFunction
     {
         protected override void FillDiff(BitmapInfo diff, BitmapInfo left, BitmapInfo right)
         {

@@ -11,7 +11,13 @@ namespace VisualImageDiff.DiffFunctions
     {
         public abstract String Name { get; }
 
-        private BitmapInfo bitmapInfoDiff;
+        private BitmapInfo cachedBitmapInfoDiff;
+
+        public enum EnableCache
+        {
+            True,
+            False
+        }
 
         /// <summary>
         /// Return cached bitmapinfo if already available
@@ -21,14 +27,23 @@ namespace VisualImageDiff.DiffFunctions
         /// <returns></returns>
         public BitmapInfo CreateDiff(BitmapInfo left, BitmapInfo right)
         {
-            if (bitmapInfoDiff == null)
-            {
-                bitmapInfoDiff = new BitmapInfo(
-                    Math.Max(left.Width, right.Width),
-                    Math.Max(left.Height, right.Height),
-                    PixelFormat.Format24bppRgb);
-                FillDiff(bitmapInfoDiff, left, right);
-            }
+            return CreateDiff(left, right, EnableCache.True);
+        }
+
+        public BitmapInfo CreateDiff(BitmapInfo left, BitmapInfo right, EnableCache enableCache)
+        {
+            if (cachedBitmapInfoDiff != null)
+                return cachedBitmapInfoDiff;
+
+            BitmapInfo bitmapInfoDiff = new BitmapInfo(
+                Math.Max(left.Width, right.Width),
+                Math.Max(left.Height, right.Height),
+                PixelFormat.Format24bppRgb);
+            FillDiff(bitmapInfoDiff, left, right);
+            
+            if (enableCache == EnableCache.True)
+                cachedBitmapInfoDiff = bitmapInfoDiff;
+
             return bitmapInfoDiff;
         }
 

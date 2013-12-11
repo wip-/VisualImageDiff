@@ -46,8 +46,51 @@ namespace VisualImageDiff
 
         ConnectionViewModel connectionViewModel = new ConnectionViewModel();
 
+
+        private void HardCodedQuickBatchMode()
+        {
+            String errorMessage;
+            String[] files = Directory.GetFiles(".", "*.png", SearchOption.TopDirectoryOnly);
+            Bitmap original = LoadBitmap("myImage.png", out errorMessage);
+            BitmapInfo originalData = new BitmapInfo(original);
+
+            List<CachedDiffFunction> curveFunctions = new List<CachedDiffFunction>();
+            curveFunctions.Add(new RedDiffCurve());
+            curveFunctions.Add(new GreenDiffCurve());
+            curveFunctions.Add(new BlueDiffCurve());
+            curveFunctions.Add(new MsdnHsbHDiffCurve());
+            curveFunctions.Add(new MsdnHsbSDiffCurve());
+            curveFunctions.Add(new MsdnHsbBDiffCurve());
+
+            List<String> prefixes = new List<String>();
+            prefixes.Add("-Rdiff");
+            prefixes.Add("-Gdiff");
+            prefixes.Add("-Bdiff");
+            prefixes.Add("-Hdiff");
+            prefixes.Add("-Sdiff");
+            prefixes.Add("-Ldiff");
+
+
+            foreach (var file in files)
+            {
+                Bitmap toCompare = LoadBitmap(file, out errorMessage);
+                BitmapInfo dataToCompare = new BitmapInfo(toCompare);
+
+                for (int i = 0; i < curveFunctions.Count; ++i )
+                {
+                    BitmapInfo diff = curveFunctions[i].CreateDiff(
+                        originalData, dataToCompare, CachedDiffFunction.EnableCache.False);
+                    String newFileName = AddToFileName(file, prefixes[i]);
+                    diff.ToBitmap().Save(newFileName);
+                }
+            }
+        }
+
+
         public MainWindow()
         {
+            //HardCodedQuickBatchMode();
+
             InitializeComponent();
             DataContext = connectionViewModel;
         }
@@ -108,6 +151,36 @@ namespace VisualImageDiff
         }
 
 
+
+        private static Bitmap LoadBitmap(String filename, out String errorMessage)
+        {
+            FileStream fs = null;
+            try
+            {
+                fs = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.None);
+            }
+            catch (IOException)
+            {
+                if (fs != null)
+                    fs.Close();
+                errorMessage = "File already in use!";
+                return null;
+            }
+
+            Bitmap bitmap;
+            //try
+            {
+                bitmap = new Bitmap(fs);
+                errorMessage = null;
+            }
+            //catch (System.Exception /*ex*/)
+            //{
+            //    bitmap.Dispose();
+            //    errorMessage = "Not an image!";
+            //}
+            return bitmap;
+        }
+
         private String LoadImage(
             System.Windows.Controls.Image destinationImage,
             ref Bitmap destinationBitmap, DragEventArgs e)
@@ -128,33 +201,14 @@ namespace VisualImageDiff
                 if (!File.Exists(imageSourceFileName))
                     return "Not a file!";
 
-                FileStream fs = null;
-                try
-                {
-                    fs = File.Open(imageSourceFileName, FileMode.Open, FileAccess.Read, FileShare.None);
-                }
-                catch (IOException)
-                {
-                    if (fs != null)
-                        fs.Close();
-                    return "File already in use!";
-                }
-
-                try
-                {
-                    destinationBitmap = new Bitmap(fs);
-                }
-                catch (System.Exception /*ex*/)
-                {
-                    destinationBitmap.Dispose();
-                    return "Not an image!";
-                }
+                String errorMessage;
+                destinationBitmap = LoadBitmap(imageSourceFileName, out errorMessage);
+                if (errorMessage != null)
+                    return errorMessage;
 
                 destinationImage.Source =
                     Imaging.CreateBitmapSourceFromHBitmap(
                         destinationBitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-
-
 
                 return null;
             }

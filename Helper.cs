@@ -55,6 +55,11 @@ namespace VisualImageDiff
             return value.Clamp(0, 255);
         }
 
+        public static double Clamp0_255(this double value)
+        {
+            return value.Clamp(0, 255);
+
+        }
         //http://stackoverflow.com/a/2683487/758666
         public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>
         {
@@ -104,6 +109,28 @@ namespace VisualImageDiff
         }
 
 
+        // http://en.wikipedia.org/wiki/Luminance_(relative)
+        // weights each R, G, B component. Sum of params is 1.00
+        // so result is between [0, 255]
+        // alternative formulas http://stackoverflow.com/a/596243/758666
+        public static double GetRelativeLuminance(Color c)
+        {
+            //return 
+            //    0.2126 * (double)c.R +
+            //    0.7152 * (double)c.G +
+            //    0.0722 * (double)c.B;
+
+            //return
+            //    0.299 * (double)c.R +
+            //    0.587 * (double)c.G +
+            //    0.114 * (double)c.B;
+
+            return Math.Sqrt(
+                0.241 * (double)c.R * (double)c.R +
+                0.691 * (double)c.G * (double)c.G +
+                0.068 * (double)c.B * (double)c.B);
+
+        }
 
 
 

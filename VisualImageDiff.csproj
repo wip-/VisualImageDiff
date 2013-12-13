@@ -68,6 +68,8 @@
     <Compile Include="DiffFunctions\CurveFunctions\HsvColorCurves\HsvColorHDiffCurve.cs" />
     <Compile Include="DiffFunctions\CurveFunctions\HsvColorCurves\HsvColorSDiffCurve.cs" />
     <Compile Include="DiffFunctions\CurveFunctions\HsvColorCurves\HsvColorVDiffCurve.cs" />
+    <Compile Include="DiffFunctions\CurveFunctions\MsdnColorCurves\HueCurveLeft.cs" />
+    <Compile Include="DiffFunctions\CurveFunctions\MsdnColorCurves\HueCurveRight.cs" />
     <Compile Include="DiffFunctions\CurveFunctions\MsdnColorCurves\MsdnColorBrightnessDiffCurve.cs" />
     <Compile Include="DiffFunctions\CurveFunctions\CurveFunction.cs" />
     <Compile Include="DiffFunctions\CurveFunctions\GreenDiffCurve.cs" />
@@ -75,11 +77,16 @@
     <Compile Include="DiffFunctions\CurveFunctions\RedRatioCurve.cs" />
     <Compile Include="DiffFunctions\CurveFunctions\MsdnColorCurves\MsdnColorSaturationDiffCurve.cs" />
     <Compile Include="DiffFunctions\GrayscaleFunctions\GrayscaleFunction.cs" />
+    <Compile Include="DiffFunctions\GrayscaleFunctions\LuminanceGrayscaleRight.cs" />
+    <Compile Include="DiffFunctions\GrayscaleFunctions\LuminanceGrayscaleDiff.cs" />
+    <Compile Include="DiffFunctions\GrayscaleFunctions\LuminanceGrayscaleLeft.cs" />
     <Compile Include="DiffFunctions\GrayscaleFunctions\MsdnHsbHDiffGrayscale.cs" />
+    <Compile Include="DiffFunctions\GrayscaleFunctions\RedRatioGrayscale.cs" />
     <Compile Include="DiffFunctions\IDiffFunction.cs" />
     <Compile Include="DiffFunctions\CurveFunctions\RedDiffCurve.cs" />
     <Compile Include="DiffFunctions\GrayscaleFunctions\MsdnHsbSDiffGrayscale.cs" />
     <Compile Include="DiffFunctions\ColorFunctions\RgbDiff.cs" />
+    <Compile Include="DiffFunctions\MatrixFunction.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

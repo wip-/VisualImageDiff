@@ -53,8 +53,10 @@ namespace VisualImageDiff
             Height = height;
             PixelFormat = pixelFormat;
             Components = Helper.GetComponentsNumber(PixelFormat);
-            double d = Width / 4;
-            Stride = Components * 4 * Convert.ToInt32(Math.Round(d));
+            int bitsPerLine = Components * Width;
+            double d = (bitsPerLine+3) / 4;
+            double d_rounded = Math.Ceiling(d);
+            Stride = 4 * Convert.ToInt32(d_rounded);
             DataByteSize = Stride * Height;
             Data = new byte[DataByteSize];
         }

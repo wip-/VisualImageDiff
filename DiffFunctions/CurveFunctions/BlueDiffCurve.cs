@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace VisualImageDiff.DiffFunctions
 {
-    public class BlueDiffCurve : CurveDiff
+    public class BlueDiffCurve : CurveFunction
     {
         public override String Name { get { return "Blue Diff Curve"; } }
 

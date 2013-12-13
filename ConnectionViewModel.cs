@@ -28,12 +28,21 @@ namespace VisualImageDiff
             diffFunctions.Add(new MsdnHsbHDiffCurve());
             diffFunctions.Add(new MsdnHsbSDiffCurve());
             diffFunctions.Add(new MsdnHsbBDiffCurve());
+            
+
+            diffFunctions.Add(new RedRatioGrayscale());
+            diffFunctions.Add(new LuminanceGrayscaleLeft());
+            diffFunctions.Add(new LuminanceGrayscaleRight());
+            diffFunctions.Add(new LuminanceGrayscaleDiff());
+
+            diffFunctions.Add(new HueCurveLeft());
+            diffFunctions.Add(new HueCurveRight());
 
             //diffFunctions.Add(new HsvColorHDiffCurve());
             //diffFunctions.Add(new HsvColorSDiffCurve());
             //diffFunctions.Add(new HsvColorVDiffCurve());
-
             //diffFunctions.Add(new RedRatioCurve());
+
             SelectedDiffFunction = diffFunctions[0];
         }
 

@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace VisualImageDiff.DiffFunctions
 {
-    public class MsdnHsbHDiffCurve : CurveDiff
+    public class MsdnHsbHDiffCurve : CurveFunction
     {
         public override String Name { get { return "Msdn HSB H Diff Curve"; } }
 

@@ -8,17 +8,17 @@ using System.Threading.Tasks;
 namespace VisualImageDiff.DiffFunctions
 {
     /// <summary>
-    /// Base class for functions that outut a curve
+    /// Base class for functions that output a curve
     /// For each x value of input 1d images, output a y value
     /// </summary>
-    public abstract class CurveDiff : CachedDiffFunction
+    public abstract class CurveFunction : CachedDiffFunction
     {
         protected override void FillDiff(BitmapInfo diff, BitmapInfo left, BitmapInfo right)
         {
             for (int x = 0; x < diff.Width; x++)
             {
-                Color colorLeft = left.GetPixelColor(x, 0);
-                Color colorRight = right.GetPixelColor(x, 0);
+                Color colorLeft = left.GetPixelColor(x, diff.Height/2);
+                Color colorRight = right.GetPixelColor(x, diff.Height/2);
                 int yVal = GetYvalue(colorLeft, colorRight, diff.Height);
 
                 for (int y = 0; y < diff.Height; ++y )

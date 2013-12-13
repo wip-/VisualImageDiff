@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace VisualImageDiff.DiffFunctions
 {
@@ -25,7 +21,7 @@ namespace VisualImageDiff.DiffFunctions
         /// <param name="left"></param>
         /// <param name="right"></param>
         /// <returns></returns>
-        public BitmapInfo CreateDiff(BitmapInfo left, BitmapInfo right)
+        public virtual BitmapInfo CreateDiff(BitmapInfo left, BitmapInfo right)
         {
             return CreateDiff(left, right, EnableCache.True);
         }

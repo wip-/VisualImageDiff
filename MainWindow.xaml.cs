@@ -329,8 +329,9 @@ namespace VisualImageDiff
                 if (bitmapInfos[i] == null) continue;
 
                 System.Drawing.Color color = bitmapInfos[i].GetPixelColor(x, y);
-                labels[i].Content = String.Format("A={0:D3}, R={1:D3}, G={2:D3}, B={3:D3}", 
-                    color.A, color.R, color.G, color.B);
+                float hue = color.GetHue();
+                labels[i].Content = String.Format("A={0:D3}, R={1:D3}, G={2:D3}, B={3:D3}, H={4:###.##}", 
+                    color.A, color.R, color.G, color.B, hue);
             }
         }
 

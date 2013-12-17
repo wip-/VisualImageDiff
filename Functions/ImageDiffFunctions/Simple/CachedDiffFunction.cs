@@ -3,7 +3,7 @@ using System.Drawing.Imaging;
 
 namespace VisualImageDiff.DiffFunctions
 {
-    public abstract class CachedDiffFunction : IDiffFunction
+    public abstract class CachedDiffFunction : ISimpleDiffFunction //, ICachedDiffFunction
     {
         public abstract String Name { get; }
 
@@ -41,6 +41,11 @@ namespace VisualImageDiff.DiffFunctions
                 cachedBitmapInfoDiff = bitmapInfoDiff;
 
             return bitmapInfoDiff;
+        }
+
+        public void InvalidateCache()
+        {
+            cachedBitmapInfoDiff = null;
         }
 
         /// <summary>

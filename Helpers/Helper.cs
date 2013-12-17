@@ -136,5 +136,17 @@ namespace VisualImageDiff
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }

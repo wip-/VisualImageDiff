@@ -21,9 +21,9 @@ using VisualImageDiff.DiffFunctions;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using Microsoft.Win32;
+using VisualImageDiff.ImageFunctions;
+using VisualImageDiff.Functions.ColorFunctions;
 
-//using ScrollChangedEventArgs = System.Windows.Controls.ScrollChangedEventArgs;
-//using ScrollViewer = System.Windows.Controls.ScrollViewer;
 
 
 
@@ -36,47 +36,42 @@ namespace VisualImageDiff
     {
         Bitmap bitmapLeft;
         Bitmap bitmapRight;
-        Bitmap bitmapDiff;
+        Bitmap bitmapDiffLeft;
+        Bitmap bitmapDiffRight;
 
         BitmapInfo bitmapInfoLeft;
         BitmapInfo bitmapInfoRight;
-        BitmapInfo bitmapInfoDiff;
+        BitmapInfo bitmapInfoDiffLeft;
+        BitmapInfo bitmapInfoDiffRight;
 
         String imageSourceFileNameFirst;
 
         ConnectionViewModel connectionViewModel = new ConnectionViewModel();
 
 
-        private void HardCodedQuickBatchMode()
+        private void HardCodedQuickBatchMode1()
         {
             String errorMessage;
-            String[] files = Directory.GetFiles(".", "*.png", SearchOption.TopDirectoryOnly);
-            Bitmap original = LoadBitmap("myImage.png", out errorMessage);
+            String[] files = Directory.GetFiles(
+                ".",
+                "*.png", SearchOption.TopDirectoryOnly);
+            Bitmap original = LoadBitmap(
+                "myImage.png",
+                out errorMessage);
             BitmapInfo originalData = new BitmapInfo(original);
 
             List<CachedDiffFunction> curveFunctions = new List<CachedDiffFunction>();
-            curveFunctions.Add(new RedDiffCurve());
-            curveFunctions.Add(new GreenDiffCurve());
-            curveFunctions.Add(new BlueDiffCurve());
-            curveFunctions.Add(new MsdnHsbHDiffCurve());
-            curveFunctions.Add(new MsdnHsbSDiffCurve());
-            curveFunctions.Add(new MsdnHsbBDiffCurve());
+            curveFunctions.Add(new MsdnHsbHDiffGrayscale());
 
             List<String> prefixes = new List<String>();
-            prefixes.Add("-Rdiff");
-            prefixes.Add("-Gdiff");
-            prefixes.Add("-Bdiff");
-            prefixes.Add("-Hdiff");
-            prefixes.Add("-Sdiff");
-            prefixes.Add("-Ldiff");
-
+            prefixes.Add("-what");
 
             foreach (var file in files)
             {
                 Bitmap toCompare = LoadBitmap(file, out errorMessage);
                 BitmapInfo dataToCompare = new BitmapInfo(toCompare);
 
-                for (int i = 0; i < curveFunctions.Count; ++i )
+                for (int i = 0; i < curveFunctions.Count; ++i)
                 {
                     BitmapInfo diff = curveFunctions[i].CreateDiff(
                         originalData, dataToCompare, CachedDiffFunction.EnableCache.False);
@@ -87,9 +82,50 @@ namespace VisualImageDiff
         }
 
 
+        private void HardCodedQuickBatchMode2()
+        {
+            String errorMessage;
+            String folderRoot = ".";
+            String[] files = Directory.GetFiles(folderRoot + "outputs", "*.png", SearchOption.TopDirectoryOnly);
+            Bitmap original = LoadBitmap(folderRoot + "myImage.png", out errorMessage);
+            BitmapInfo originalData = new BitmapInfo(original);
+
+            List<IDiffFunction> curveFunctions = new List<IDiffFunction>();
+            curveFunctions.Add(new DualProcess<CurveImageFunction<RgbRComponent>>());
+
+            List<String> folders = new List<String>();
+            folders.Add("reds\\");
+
+            for (int i = 0; i < folders.Count; ++i)
+            {
+                if (!Directory.Exists(folderRoot + folders[i]))
+                    Directory.CreateDirectory(folderRoot + folders[i]);
+            }
+
+
+            IDiffFunction curveFunc = new MsdnHsbHDiffGrayscale();
+            
+            foreach (var file in files)
+            {
+                Bitmap toCompare = LoadBitmap(file, out errorMessage);
+                BitmapInfo dataToCompare = new BitmapInfo(toCompare);
+
+                for (int i = 0; i < curveFunctions.Count; ++i)
+                {
+                    CachedDiffFunction cachedDiff = curveFunctions[i] as CachedDiffFunction;
+                    if (cachedDiff == null)
+                        continue;
+
+                    BitmapInfo diff = cachedDiff.CreateDiff(originalData, dataToCompare, CachedDiffFunction.EnableCache.False);
+                    String newFileName = folderRoot + folders[i] + Path.GetFileNameWithoutExtension(file) + ".png";
+                    diff.ToBitmap().Save(newFileName, ImageFormat.Png);
+                }
+            }
+        }
+
         public MainWindow()
         {
-            //HardCodedQuickBatchMode();
+            //HardCodedQuickBatchMode2();
 
             InitializeComponent();
             DataContext = connectionViewModel;
@@ -110,10 +146,13 @@ namespace VisualImageDiff
             String msg = LoadImage(ImageLeft, ref bitmapLeft, e);
 
             if (msg != null)
+            {
                 LabelInfo.Content = msg;
+            }
             else
             {
                 bitmapInfoLeft = new BitmapInfo(bitmapLeft);
+                connectionViewModel.InvalidateDiffCaches();
                 CreateDiff();
             }
 
@@ -128,6 +167,7 @@ namespace VisualImageDiff
             else
             {
                 bitmapInfoRight = new BitmapInfo(bitmapRight);
+                connectionViewModel.InvalidateDiffCaches();
                 CreateDiff();
             }
         }
@@ -135,18 +175,45 @@ namespace VisualImageDiff
         private void ComboBoxDiffFunction_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CreateDiff();
+
+            // refresh scrollviewer zooms
+            Zoom(GetCurrentZoom());
         }
 
         private void CreateDiff()
         {
             if (bitmapLeft != null && bitmapRight != null)
             {
-                bitmapInfoDiff = 
-                    connectionViewModel.SelectedDiffFunction.CreateDiff(bitmapInfoLeft, bitmapInfoRight);
-                bitmapDiff = bitmapInfoDiff.ToBitmap();
-                ImageDiff.Source =
-                    Imaging.CreateBitmapSourceFromHBitmap(
-                    bitmapDiff.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                ISimpleDiffFunction simpleDiff = connectionViewModel.SelectedDiffFunction as ISimpleDiffFunction;
+                if (simpleDiff != null)
+                {
+                    bitmapInfoDiffLeft = simpleDiff.CreateDiff(bitmapInfoLeft, bitmapInfoRight);
+
+                    bitmapDiffLeft = bitmapInfoDiffLeft.ToBitmap();
+                    ImageDiffLeft.Source =
+                        Imaging.CreateBitmapSourceFromHBitmap(
+                        bitmapDiffLeft.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+
+                    ImageDiffRight.Source = null;
+                }
+
+                IDualDiffFunction dualDiff = connectionViewModel.SelectedDiffFunction as IDualDiffFunction;
+                if (dualDiff != null)
+                {
+                    BitmapInfoPair diffs = dualDiff.CreateDiff(bitmapInfoLeft, bitmapInfoRight);
+
+                    bitmapInfoDiffLeft = diffs.left;
+                    bitmapDiffLeft = bitmapInfoDiffLeft.ToBitmap();
+                    ImageDiffLeft.Source =
+                        Imaging.CreateBitmapSourceFromHBitmap(
+                        bitmapDiffLeft.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+
+                    bitmapInfoDiffRight = diffs.right;
+                    bitmapDiffRight = bitmapInfoDiffRight.ToBitmap();
+                    ImageDiffRight.Source =
+                        Imaging.CreateBitmapSourceFromHBitmap(
+                        bitmapDiffRight.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                }
             }
         }
 
@@ -228,10 +295,15 @@ namespace VisualImageDiff
             double hori = ((ScrollViewer)sender).HorizontalOffset;
 
             ScrollViewer[] scrollViewers = new ScrollViewer[]
-                { ScrollViewerImageLeft, ScrollViewerImageRight, ScrollViewerImageDiff};
+            {
+                ScrollViewerImageLeft, ScrollViewerImageRight, 
+                ScrollViewerImageDiffLeft, ScrollViewerImageDiffRight
+            };
 
             foreach (ScrollViewer scrollViewer in scrollViewers )
             {
+                if (scrollViewer == null)
+                    continue;
                 scrollViewer.ScrollToVerticalOffset(vert);
                 scrollViewer.ScrollToHorizontalOffset(hori);
                 scrollViewer.UpdateLayout();
@@ -261,6 +333,15 @@ namespace VisualImageDiff
             SliderZoomOut.Value = 1;
         }
 
+        private double GetCurrentZoom()
+        {
+            if (SliderZoomIn.Value != 1)
+                return SliderZoomIn.Value;
+            if (SliderZoomOut.Value!=1)
+                return SliderZoomIn.Value;
+            return 1;
+        }
+
         private void Zoom(double val)
         {
             try
@@ -273,8 +354,11 @@ namespace VisualImageDiff
                 TransformGroup myTransformGroup = new TransformGroup();
                 myTransformGroup.Children.Add(myScaleTransform);
 
-                System.Windows.Controls.Image[] images =
-                    new System.Windows.Controls.Image[] { ImageLeft, ImageRight, ImageDiff };
+                System.Windows.Controls.Image[] images = new System.Windows.Controls.Image[] 
+                { 
+                    ImageLeft, ImageRight, 
+                    ImageDiffLeft, ImageDiffRight 
+                };
 
                 foreach (System.Windows.Controls.Image image in images)
                 {
@@ -305,44 +389,58 @@ namespace VisualImageDiff
             Image_MouseMove(ImageRight, e);
         }
 
-        private void ImageDiff_MouseMove(object sender, MouseEventArgs e)
+        private void ImageDiffLeft_MouseMove(object sender, MouseEventArgs e)
         {
-            Image_MouseMove(ImageDiff, e);
+            Image_MouseMove(ImageDiffLeft, e);
         }
 
+        private void ImageDiffRight_MouseMove(object sender, MouseEventArgs e)
+        {
+            Image_MouseMove(ImageDiffRight, e);
+        }
 
         private void Image_MouseMove(System.Windows.Controls.Image clickedImage, MouseEventArgs e)
         {
             int x = (int)(e.GetPosition(clickedImage).X);
             int y = (int)(e.GetPosition(clickedImage).Y);
 
-            BitmapInfo[] bitmapInfos =
-                new BitmapInfo[] { bitmapInfoLeft, bitmapInfoRight, bitmapInfoDiff };
+            BitmapInfo[] bitmapInfos = new BitmapInfo[] 
+            { 
+                bitmapInfoLeft, bitmapInfoRight, 
+                bitmapInfoDiffLeft, bitmapInfoDiffRight, 
+            };
 
-            System.Windows.Controls.Label[] labels =
-                new System.Windows.Controls.Label[] { LabelColorLeft, LabelColorRight, LabelColorDiff };
+            System.Windows.Controls.Label[] labels = new System.Windows.Controls.Label[] 
+            { 
+                LabelColorLeft, LabelColorRight, 
+                LabelColorDiffLeft, LabelColorDiffRight
+            };
 
             LabelInfo.Content = String.Format("X={0:D4}, Y={1:D4}", x, y);
 
-            for (int i = 0; i < 3; ++i )
+            for (int i = 0; i < 4; ++i )
             {
                 if (bitmapInfos[i] == null) continue;
 
                 System.Drawing.Color color = bitmapInfos[i].GetPixelColor(x, y);
-                float hue = color.GetHue();
-                labels[i].Content = String.Format("A={0:D3}, R={1:D3}, G={2:D3}, B={3:D3}, H={4:###.##}", 
-                    color.A, color.R, color.G, color.B, hue);
+                labels[i].Content = Helpers.ColorConversion.GetColorsString(color);
             }
         }
 
 
-
-
-
-
-        private void ButtonSaveDiff_Click(object sender, RoutedEventArgs e)
+        private void ButtonSaveResultLeft_Click(object sender, RoutedEventArgs e)
         {
-            if (bitmapDiff == null)
+            ButtonSaveResult(bitmapDiffLeft);
+        }
+
+        private void ButtonSaveResultRight_Click(object sender, RoutedEventArgs e)
+        {
+            ButtonSaveResult(bitmapDiffRight);
+        }
+
+        private void ButtonSaveResult(Bitmap bitmap)
+        {
+            if (bitmap == null)
                 return;
 
             SaveFileDialog dialogSaveFile = new SaveFileDialog();
@@ -355,16 +453,19 @@ namespace VisualImageDiff
                 Stream saveStream;
                 if ((saveStream = dialogSaveFile.OpenFile()) != null)
                 {
-                    bitmapDiff.Save(saveStream, ImageFormat.Png);
+                    bitmap.Save(saveStream, ImageFormat.Png);
                     saveStream.Close();
                 }
             }
         }
 
+
         String AddToFileName(String filename, String addChars)
         {
             return Path.GetFileNameWithoutExtension(filename) + addChars + Path.GetExtension(filename);
         }
+
+
 
 
 

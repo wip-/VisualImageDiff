@@ -62,39 +62,33 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ConnectionViewModel.cs" />
-    <Compile Include="DiffFunctions\CachedDiffFunction.cs" />
-    <Compile Include="DiffFunctions\CurveFunctions\BlueDiffCurve.cs" />
-    <Compile Include="DiffFunctions\CurveFunctions\HsvColorCurves\HsvColorHDiffCurve.cs" />
-    <Compile Include="DiffFunctions\CurveFunctions\HsvColorCurves\HsvColorSDiffCurve.cs" />
-    <Compile Include="DiffFunctions\CurveFunctions\HsvColorCurves\HsvColorVDiffCurve.cs" />
-    <Compile Include="DiffFunctions\CurveFunctions\MsdnColorCurves\HueCurveLeft.cs" />
-    <Compile Include="DiffFunctions\CurveFunctions\MsdnColorCurves\HueCurveRight.cs" />
-    <Compile Include="DiffFunctions\CurveFunctions\MsdnColorCurves\MsdnColorBrightnessDiffCurve.cs" />
-    <Compile Include="DiffFunctions\CurveFunctions\CurveFunction.cs" />
-    <Compile Include="DiffFunctions\CurveFunctions\GreenDiffCurve.cs" />
-    <Compile Include="DiffFunctions\CurveFunctions\MsdnColorCurves\MsdnColorHueDiffCurve.cs" />
-    <Compile Include="DiffFunctions\CurveFunctions\RedRatioCurve.cs" />
-    <Compile Include="DiffFunctions\CurveFunctions\MsdnColorCurves\MsdnColorSaturationDiffCurve.cs" />
-    <Compile Include="DiffFunctions\GrayscaleFunctions\GrayscaleFunction.cs" />
-    <Compile Include="DiffFunctions\GrayscaleFunctions\LuminanceGrayscaleRight.cs" />
-    <Compile Include="DiffFunctions\GrayscaleFunctions\LuminanceGrayscaleDiff.cs" />
-    <Compile Include="DiffFunctions\GrayscaleFunctions\LuminanceGrayscaleLeft.cs" />
-    <Compile Include="DiffFunctions\GrayscaleFunctions\MsdnHsbHDiffGrayscale.cs" />
-    <Compile Include="DiffFunctions\GrayscaleFunctions\RedRatioGrayscale.cs" />
-    <Compile Include="DiffFunctions\IDiffFunction.cs" />
-    <Compile Include="DiffFunctions\CurveFunctions\RedDiffCurve.cs" />
-    <Compile Include="DiffFunctions\GrayscaleFunctions\MsdnHsbSDiffGrayscale.cs" />
-    <Compile Include="DiffFunctions\ColorFunctions\RgbDiff.cs" />
-    <Compile Include="DiffFunctions\MatrixFunction.cs" />
-    <Compile Include="Helper.cs" />
+    <Compile Include="Functions\ColorFunctions\ColorFunctions.cs" />
+    <Compile Include="Functions\ColorFunctions\IColorFunction.cs" />
+    <Compile Include="Functions\ImageDiffFunctions\Dual\CachedDualDiffFunction.cs" />
+    <Compile Include="Functions\ImageDiffFunctions\Dual\DualProcess.cs" />
+    <Compile Include="Helpers\ConnectionViewModel.cs" />
+    <Compile Include="Functions\ImageDiffFunctions\Simple\CachedDiffFunction.cs" />
+    <Compile Include="Functions\ImageDiffFunctions\Simple\CurveDiffFunctions\CurveDiffFunction.cs" />
+    <Compile Include="Functions\ImageDiffFunctions\Simple\CurveDiffFunctions\RedRatioCurve.cs" />
+    <Compile Include="Functions\ImageDiffFunctions\Simple\GrayscaleFunctions\GrayscaleFunction.cs" />
+    <Compile Include="Functions\ImageDiffFunctions\Simple\GrayscaleFunctions\LuminanceGrayscaleRight.cs" />
+    <Compile Include="Functions\ImageDiffFunctions\Simple\GrayscaleFunctions\LuminanceGrayscaleDiff.cs" />
+    <Compile Include="Functions\ImageDiffFunctions\Simple\GrayscaleFunctions\LuminanceGrayscaleLeft.cs" />
+    <Compile Include="Functions\ImageDiffFunctions\Simple\GrayscaleFunctions\MsdnHsbHDiffGrayscale.cs" />
+    <Compile Include="Functions\ImageDiffFunctions\Simple\GrayscaleFunctions\RedRatioGrayscale.cs" />
+    <Compile Include="Functions\ImageDiffFunctions\IDiffFunction.cs" />
+    <Compile Include="Functions\ImageDiffFunctions\Simple\GrayscaleFunctions\MsdnHsbSDiffGrayscale.cs" />
+    <Compile Include="Helpers\ColorConversion.cs" />
+    <Compile Include="Helpers\Helper.cs" />
+    <Compile Include="Functions\ImageFunctions\Curves\CurveImageFunction.cs" />
+    <Compile Include="Functions\ImageFunctions\IImageFunction.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BitmapInfo.cs" />
+    <Compile Include="Helpers\BitmapInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

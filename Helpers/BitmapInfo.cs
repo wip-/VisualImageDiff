@@ -9,6 +9,18 @@ using System.Threading.Tasks;
 
 namespace VisualImageDiff
 {
+    public class BitmapInfoPair
+    {
+        public BitmapInfo left;
+        public BitmapInfo right;
+        public BitmapInfoPair(BitmapInfo left, BitmapInfo right)
+        {
+            this.left = left;
+            this.right = right;
+        }
+    }
+
+
     public class BitmapInfo
     {
         public int Width;

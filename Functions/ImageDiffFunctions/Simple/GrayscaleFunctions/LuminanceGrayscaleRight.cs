@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Drawing;
+using VisualImageDiff.ColorStructures;
 
 namespace VisualImageDiff.DiffFunctions
 {
@@ -7,10 +7,11 @@ namespace VisualImageDiff.DiffFunctions
     {
         public override String Name { get { return "Luminance Grayscale right"; } }
 
-        protected override byte GetGrayScaleDiff(Color left, Color right)
+        protected override byte GetGrayScaleDiff(IColor left, IColor right)
         {
             double luminance = Helper.GetRelativeLuminance(right);
-            byte grayScale = Convert.ToByte(luminance.Clamp0_255());
+            double luminance256 = 256 * luminance;
+            byte grayScale = Convert.ToByte(luminance256.Clamp0_255());
             return grayScale;
         }
     }

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using VisualImageDiff.DiffFunctions;
 using VisualImageDiff.Functions.ColorFunctions;
@@ -60,6 +56,11 @@ namespace VisualImageDiff
             diffFunctions.Add(new DualProcess<CurveImageFunction<AdobeRgbGComponent>>());
             diffFunctions.Add(new DualProcess<CurveImageFunction<AdobeRgbBComponent>>());
 
+            diffFunctions.Add(new DualProcess<DerivativeCurveImageFunction<RgbRComponent>>());
+            diffFunctions.Add(new DualProcess<DerivativeCurveImageFunction<RgbGComponent>>());
+            diffFunctions.Add(new DualProcess<DerivativeCurveImageFunction<RgbBComponent>>());
+
+            diffFunctions.Add(new DualProcess<DerivativeCurveImageFunction<MsdnHsbHComponent>>());
 
             //diffFunctions.Add(new HsvColorHDiffCurve());
             //diffFunctions.Add(new HsvColorSDiffCurve());

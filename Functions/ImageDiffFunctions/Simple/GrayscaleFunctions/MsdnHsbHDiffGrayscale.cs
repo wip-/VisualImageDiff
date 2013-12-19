@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Drawing;
+using VisualImageDiff.ColorStructures;
 
 namespace VisualImageDiff.DiffFunctions
 {
@@ -7,10 +7,10 @@ namespace VisualImageDiff.DiffFunctions
     {
         public override String Name { get { return "Msdn HSB H Diff Grayscale"; } }
 
-        protected override byte GetGrayScaleDiff(Color left, Color right)
+        protected override byte GetGrayScaleDiff(IColor left, IColor right)
         {
-            float hueLeft = left.GetHue();     // In degrees, [0.0-360.0]
-            float hueRight = right.GetHue();
+            float hueLeft = left.ToMsdnColor().GetHue();     // In degrees, [0.0-360.0]
+            float hueRight = right.ToMsdnColor().GetHue();
 
             float hueDiff = Math.Max(hueLeft, hueRight) - Math.Min(hueLeft, hueRight);
             if (hueDiff > 180.0)

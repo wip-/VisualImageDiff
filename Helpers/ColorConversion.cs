@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using VisualImageDiff.ColorStructures;
 
 namespace VisualImageDiff.Helpers
 {
@@ -13,12 +14,12 @@ namespace VisualImageDiff.Helpers
         public double s;
         public double l;
 
-        public HSL(Color rgb)
+        public HSL(IColor rgb)
         {
             // normalizes red-green-blue values
-            double nRed = (double)rgb.R / 255.0;
-            double nGreen = (double)rgb.G / 255.0;
-            double nBlue = (double)rgb.B / 255.0;
+            double nRed = rgb.RNormalized;
+            double nGreen = rgb.GNormalized;
+            double nBlue = rgb.BNormalized;
 
             double max = Math.Max(nRed, Math.Max(nGreen, nBlue));
             double min = Math.Min(nRed, Math.Min(nGreen, nBlue));
@@ -123,11 +124,11 @@ namespace VisualImageDiff.Helpers
         public double hue;
         public double sat;
         public double bri;
-        public HSB (Color rgb)
+        public HSB (IColor rgb)
         {
-            double r = ((double)rgb.R / 255.0);
-            double g = ((double)rgb.G / 255.0);
-            double b = ((double)rgb.B / 255.0);
+            double r = rgb.RNormalized;
+            double g = rgb.GNormalized;
+            double b = rgb.BNormalized;
 
             double max = Math.Max(r, Math.Max(g, b));
             double min = Math.Min(r, Math.Min(g, b));
@@ -234,11 +235,11 @@ namespace VisualImageDiff.Helpers
         public double y;
         public double k;
 
-        public CMYK(Color rgb)
+        public CMYK(IColor rgb)
         {
-            double c0 = (double)(255 - rgb.R) / 255;
-            double m0 = (double)(255 - rgb.G) / 255;
-            double y0 = (double)(255 - rgb.B) / 255;
+            double c0 = 1 - rgb.RNormalized;
+            double m0 = 1 - rgb.GNormalized;
+            double y0 = 1 - rgb.BNormalized;
 
             double min = (double)Math.Min(c0, Math.Min(m0, y0));
             if (min == 1.0)
@@ -275,12 +276,12 @@ namespace VisualImageDiff.Helpers
         public double u;
         public double v;
 
-        public YUV(Color rgb)
+        public YUV(IColor rgb)
         {
             // normalizes red/green/blue values
-            double nRed = (double)rgb.R / 255.0;
-            double nGreen = (double)rgb.G / 255.0;
-            double nBlue = (double)rgb.B / 255.0;
+            double nRed = rgb.RNormalized;
+            double nGreen = rgb.GNormalized;
+            double nBlue = rgb.BNormalized;
 
             // converts
             y = 0.299 * nRed + 0.587 * nGreen + 0.114 * nBlue;
@@ -320,12 +321,12 @@ namespace VisualImageDiff.Helpers
         public static readonly CIEXYZ BlackPoint = new CIEXYZ(0, 0, 0);
 
         // from http://en.wikipedia.org/wiki/SRGB
-        public CIEXYZ(Color rgb)
+        public CIEXYZ(IColor rgb)
         {
             // normalize red, green, blue values
-            double rLinear = (double)rgb.R / 255.0;
-            double gLinear = (double)rgb.G / 255.0;
-            double bLinear = (double)rgb.B / 255.0;
+            double rLinear = rgb.RNormalized;
+            double gLinear = rgb.GNormalized;
+            double bLinear = rgb.BNormalized;
 
             // convert to a sRGB form
             double r = (rLinear > 0.04045) ? 
@@ -427,7 +428,7 @@ namespace VisualImageDiff.Helpers
         public double g;
         public double b;
 
-        public AdobeRGB(Color color)
+        public AdobeRGB(IColor color)
         {
             CIEXYZ xyz = new CIEXYZ(color);
 
@@ -465,11 +466,12 @@ namespace VisualImageDiff.Helpers
 
     static class ColorConversion
     {
-        public static String GetColorsString(Color color)
+        public static String GetColorsString(IColor color)
         {
-            String str = String.Format("[RGB] R={0:D3}, G={1:D3}, B={2:D3}\n", color.R, color.G, color.B);
+            String str = String.Format("[RGB] R={0:D3}, G={1:D3}, B={2:D3}\n", color.ToMsdnColor().R, color.ToMsdnColor().G, color.ToMsdnColor().B);
 
-            str += String.Format("[HSB　MSDN] H={0:000.00}, S={1:0.000}, B={2:0.000}\n", color.GetHue(), color.GetSaturation(), color.GetBrightness());
+            str += String.Format("[HSB　MSDN] H={0:000.00}, S={1:0.000}, B={2:0.000}\n", 
+                color.ToMsdnColor().GetHue(), color.ToMsdnColor().GetSaturation(), color.ToMsdnColor().GetBrightness());
             
             HSL hsl = new HSL(color);
             str += String.Format("[HSV] H={0:000.00}, S={1:0.000}, L={2:0.000}\n", hsl.h, hsl.s, hsl.l);
@@ -484,7 +486,7 @@ namespace VisualImageDiff.Helpers
             str += String.Format("[YUV] Y={0:0.000}, U={1:0.000}, V={2:0.000}\n", yuv.y, yuv.u, yuv.v);
 
             CIEXYZ xyz = new CIEXYZ(color);
-            str += String.Format("[CIEXYZ] X={0:000.00}, Y={1:000.00}, Z={2:000.00}\n", xyz.x, xyz.y, xyz.z);
+            str += String.Format("[CIEXYZ] X={0:0.000}, Y={1:0.000}, Z={2:0.000}\n", xyz.x, xyz.y, xyz.z);
 
             CIELab lab = new CIELab(xyz);
             str += String.Format("[CIELAB] L={0:000.00}, a={1:000.00}, b={2:000.00}\n", lab.l, lab.a, lab.b);

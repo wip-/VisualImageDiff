@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Drawing;
+using VisualImageDiff.ColorStructures;
 using VisualImageDiff.Helpers;
 
 
@@ -8,235 +8,174 @@ namespace VisualImageDiff.Functions.ColorFunctions
 
 
 
-    public class RgbRComponent : IColorFunction
+    public class RgbRComponent : BaseColorFunction
     {
-        public String Name { get { return "RGB R Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            double y = (yMax - 1) * (double)color.R / 255;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
+        public override String Name { get { return "RGB R Component"; } }
+        public override double yInputMin { get { return 0; } }
+        public override double yInputMax { get { return 255; } }
+        public override double GetYvalue(IColor color){ return color.R; }
     }
 
-    public class RgbGComponent : IColorFunction
+    public class RgbGComponent : BaseColorFunction
     {
-        public String Name { get { return "RGB G Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            double y = (yMax - 1) * (double)color.G / 255;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
+        public override String Name { get { return "RGB G Component"; } }
+        public override double yInputMin { get { return 0; } }
+        public override double yInputMax { get { return 255; } }
+        public override double GetYvalue(IColor color) { return color.G; }
     }
 
-    public class RgbBComponent : IColorFunction
+    public class RgbBComponent : BaseColorFunction
     {
-        public String Name { get { return "RGB B Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            double y = (yMax - 1) * (double)color.B / 255;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
+        public override String Name { get { return "RGB B Component"; } }
+        public override double yInputMin { get { return 0; } }
+        public override double yInputMax { get { return 255; } }
+        public override double GetYvalue(IColor color) { return color.B; }
     }
 
 
 
 
-
-    public class MsdnHsbHComponent : IColorFunction
+    public class MsdnHsbHComponent : BaseColorFunction
     {
-        public String Name { get { return "Msdn HSB H Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            float hue = color.GetHue();  // [0,360]
-            double y = yMax * hue / 360;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
+        public override String Name { get { return "Msdn HSB H Component"; } }
+        public override double yInputMin { get { return 0; } }
+        public override double yInputMax { get { return 360; } }
+        public override double GetYvalue(IColor color) { return color.ToMsdnColor().GetHue(); }
     }
 
-    public class MsdnHsbSComponent : IColorFunction
+    public class MsdnHsbSComponent : BaseColorFunction
     {
-        public String Name { get { return "Msdn HSB S Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            float comp = color.GetSaturation();  // [0,1]
-            double y = yMax * comp;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
+        public override String Name { get { return "Msdn HSB S Component"; } }
+        public override double yInputMin { get { return 0; } }
+        public override double yInputMax { get { return 1; } }
+        public override double GetYvalue(IColor color) { return color.ToMsdnColor().GetSaturation(); }
     }
 
-    public class MsdnHsbBComponent : IColorFunction
+    public class MsdnHsbBComponent : BaseColorFunction
     {
-        public String Name { get { return "Msdn HSB B Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            float comp = color.GetBrightness();  // [0,1]
-            double y = yMax * comp;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
+        public override String Name { get { return "Msdn HSB B Component"; } }
+        public override double yInputMin { get { return 0; } }
+        public override double yInputMax { get { return 1; } }
+        public override double GetYvalue(IColor color) { return color.ToMsdnColor().GetBrightness(); }
     }
 
 
-    public class StaHsvVComponent : IColorFunction
+
+    public class StaHsvVComponent : BaseColorFunction
     {
-        public String Name { get { return "StackOv. HSV V Component"; } }
-        public int GetYvalue(Color color, int yMax)
+        public override String Name { get { return "StackOv. HSV V Component"; } }
+        public override double yInputMin { get { return 0; } }
+        public override double yInputMax { get { return 1; } }
+        public override double GetYvalue(IColor color)
         {
             double h, s, v;
             Helper.ColorToHSV(color, out h, out s, out v);
-            double y = yMax * v;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
+            return v;
         }
     }
 
 
-
-    public class CieXyzXComponent : IColorFunction
+    public class CieXyzXComponent : BaseColorFunction
     {
-        public String Name { get { return "CIE XYZ X Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            CIEXYZ xyz = new CIEXYZ(color);
-            double y = (yMax - 1) * xyz.x;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
+        public override String Name { get { return "CIE XYZ X Component"; } }
+        public override double yInputMin { get { return 0; } }
+        public override double yInputMax { get { return 1; } }
+        public override double GetYvalue(IColor color) { return new CIEXYZ(color).x; }
     }
 
-    public class CieXyzYComponent : IColorFunction
+    public class CieXyzYComponent : BaseColorFunction
     {
-        public String Name { get { return "CIE XYZ Y Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            CIEXYZ xyz = new CIEXYZ(color);
-            double y = (yMax - 1) * xyz.y;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
+        public override String Name { get { return "CIE XYZ Y Component"; } }
+        public override double yInputMin { get { return 0; } }
+        public override double yInputMax { get { return 1; } }
+        public override double GetYvalue(IColor color) { return new CIEXYZ(color).y; }
     }
 
-    public class CieXyzZComponent : IColorFunction
+    public class CieXyzZComponent : BaseColorFunction
     {
-        public String Name { get { return "CIE XYZ Z Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            CIEXYZ xyz = new CIEXYZ(color);
-            double y = (yMax - 1) * xyz.z/1.089;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
+        public override String Name { get { return "CIE XYZ Z Component"; } }
+        public override double yInputMin { get { return 0; } }
+        public override double yInputMax { get { return 1; } }
+        public override double GetYvalue(IColor color) { return new CIEXYZ(color).z; }
     }
 
 
 
-
-    public class CieLabLComponent : IColorFunction
+    public class CieLabLComponent : BaseColorFunction
     {
-        public String Name { get { return "Cie L*ab L Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            CIEXYZ xyz = new CIEXYZ(color);
-            CIELab lab = new CIELab(xyz);
-            // L belongs to [0, 100]
-            double y = (yMax - 1) * lab.l / 100;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
+        public override String Name { get { return "Cie L*ab L Component"; } }
+        public override double yInputMin { get { return 0; } }
+        public override double yInputMax { get { return 100; } }
+        public override double GetYvalue(IColor color) { return new CIELab(new CIEXYZ(color)).l; }
     }
 
-    public class CieLabAComponent : IColorFunction
+    public class CieLabAComponent : BaseColorFunction
     {
-        public String Name { get { return "Cie L*ab a Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            CIEXYZ xyz = new CIEXYZ(color);
-            CIELab lab = new CIELab(xyz);
-            // a belongs to [-128.0, 127.0]
-            double y = (yMax - 1) * (lab.a+128) / 256;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
+        public override String Name { get { return "Cie L*ab a Component"; } }
+        public override double yInputMin { get { return -128; } }
+        public override double yInputMax { get { return  128; } }
+        public override double GetYvalue(IColor color) { return new CIELab(new CIEXYZ(color)).a; }
     }
 
-    public class CieLabBComponent : IColorFunction
+    public class CieLabBComponent : BaseColorFunction
     {
-        public String Name { get { return "Cie L*ab b Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            CIEXYZ xyz = new CIEXYZ(color);
-            CIELab lab = new CIELab(xyz);
-            // b belongs to [-128.0, 127.0]
-            double y = (yMax - 1) * (lab.b + 128) / 256;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
-    }
-
-
-
-    public class YuvYComponent : IColorFunction
-    {
-        public String Name { get { return "YUV Y Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            YUV yuv = new YUV(color);
-            // we suppose Y belongs to [-1.0, 1.0]
-            double y = (yMax - 1) * (yuv.y+1) / 2;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
-    }
-
-    public class YuvUComponent : IColorFunction
-    {
-        public String Name { get { return "YUV U Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            YUV yuv = new YUV(color);
-            // we suppose Y belongs to [-1.0, 1.0]
-            double y = (yMax - 1) * (yuv.u + 1) / 2;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
-    }
-
-    public class YuvVComponent : IColorFunction
-    {
-        public String Name { get { return "YUV V Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            YUV yuv = new YUV(color);
-            // we suppose Y belongs to [-1.0, 1.0]
-            double y = (yMax - 1) * (yuv.v + 1) / 2;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
+        public override String Name { get { return "Cie L*ab b Component"; } }
+        public override double yInputMin { get { return -128; } }
+        public override double yInputMax { get { return  128; } }
+        public override double GetYvalue(IColor color) { return new CIELab(new CIEXYZ(color)).b; }
     }
 
 
 
 
-    public class AdobeRgbRComponent : IColorFunction
+    public class YuvYComponent : BaseColorFunction
     {
-        public String Name { get { return "Adobe RGB R Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            AdobeRGB rgb = new AdobeRGB(color);
-            double y = (yMax - 1) * (rgb.r + 1) / 256;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
+        public override String Name { get { return "YUV Y Component"; } }
+        public override double yInputMin { get { return -1; } }
+        public override double yInputMax { get { return  1; } }
+        public override double GetYvalue(IColor color) { return new YUV(color).y; }
     }
 
-    public class AdobeRgbGComponent : IColorFunction
+    public class YuvUComponent : BaseColorFunction
     {
-        public String Name { get { return "Adobe RGB G Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            AdobeRGB rgb = new AdobeRGB(color);
-            double y = (yMax - 1) * (rgb.g + 1) / 256;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
+        public override String Name { get { return "YUV U Component"; } }
+        public override double yInputMin { get { return -1; } }
+        public override double yInputMax { get { return  1; } }
+        public override double GetYvalue(IColor color) { return new YUV(color).u; }
     }
 
-    public class AdobeRgbBComponent : IColorFunction
+    public class YuvVComponent : BaseColorFunction
     {
-        public String Name { get { return "Adobe RGB B Component"; } }
-        public int GetYvalue(Color color, int yMax)
-        {
-            AdobeRGB rgb = new AdobeRGB(color);
-            double y = (yMax - 1) * (rgb.b + 1) / 256;
-            return Convert.ToInt32(y.Clamp(0, yMax - 1));
-        }
+        public override String Name { get { return "YUV V Component"; } }
+        public override double yInputMin { get { return -1; } }
+        public override double yInputMax { get { return  1; } }
+        public override double GetYvalue(IColor color) { return new YUV(color).v; }
+    }
+
+
+
+    public class AdobeRgbRComponent : BaseColorFunction
+    {
+        public override String Name { get { return "Adobe RGB R Component"; } }
+        public override double yInputMin { get { return 0; } }
+        public override double yInputMax { get { return 255; } }
+        public override double GetYvalue(IColor color) { return new AdobeRGB(color).r; }
+    }
+
+    public class AdobeRgbGComponent : BaseColorFunction
+    {
+        public override String Name { get { return "Adobe RGB G Component"; } }
+        public override double yInputMin { get { return 0; } }
+        public override double yInputMax { get { return 255; } }
+        public override double GetYvalue(IColor color) { return new AdobeRGB(color).g; }
+    }
+
+    public class AdobeRgbBComponent : BaseColorFunction
+    {
+        public override String Name { get { return "Adobe RGB B Component"; } }
+        public override double yInputMin { get { return 0; } }
+        public override double yInputMax { get { return 255; } }
+        public override double GetYvalue(IColor color) { return new AdobeRGB(color).b; }
     }
 
 }

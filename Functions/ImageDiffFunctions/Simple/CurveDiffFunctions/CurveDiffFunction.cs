@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using VisualImageDiff.ColorStructures;
 using VisualImageDiff.Functions.ColorFunctions;
 
 namespace VisualImageDiff.DiffFunctions
@@ -9,7 +10,7 @@ namespace VisualImageDiff.DiffFunctions
     /// For each x value of input 1d images, output a y value
     /// </summary>
     public class ColorDiffFunction<T> : CachedDiffFunction
-        where T : IColorFunction, new()
+        where T : BaseColorFunction, new()
     {
         private T t;
 
@@ -24,13 +25,18 @@ namespace VisualImageDiff.DiffFunctions
         {
             for (int x = 0; x < diff.Width; x++)
             {
-                Color colorLeft = left.GetPixelColor(x, diff.Height/2);
-                Color colorRight = right.GetPixelColor(x, diff.Height/2);
+                IColor colorLeft = left.GetPixelColor(x, diff.Height/2);
+                IColor colorRight = right.GetPixelColor(x, diff.Height/2);
 
-                int yLeft = t.GetYvalue(colorLeft, diff.Height);        // belongs to [0, Height]
-                int yRight = t.GetYvalue(colorRight, diff.Height);     // belongs to [0, Height]
-                int yVal = yRight - yLeft;                              // belongs to [-Height, Height]
-                yVal = (yVal + diff.Height) / 2;
+                double yLeft = t.GetYvalue(colorLeft);      // belongs to [t.yInputMin, t.yInputMax]
+                double yRight = t.GetYvalue(colorRight);    // belongs to [t.yInputMin, t.yInputMax]
+                double yDiff = yRight - yLeft;              // belongs to [t.yInputMin-t.yInputMax, t.yInputMax-t.yInputMin]
+
+                double yValRemapped = Helper.Lerp(yDiff, 
+                    (t.yInputMin-t.yInputMax), (t.yInputMax-t.yInputMin),
+                    0, (diff.Height-1));
+
+                int yVal = Convert.ToInt32(yValRemapped.Clamp(0, diff.Height - 1));
 
                 // in the original image y is higher at the bottom
                 // we invert y so that output curves are easier to understand

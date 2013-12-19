@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using VisualImageDiff.ColorStructures;
 
 namespace VisualImageDiff.DiffFunctions
 {
@@ -17,8 +18,8 @@ namespace VisualImageDiff.DiffFunctions
 
             for (int x = 0; x < diff.Width; x++)
             {
-                Color colorLeft = left.GetPixelColor(x, diff.Height / 2);
-                Color colorRight = right.GetPixelColor(x, diff.Height / 2);
+                IColor colorLeft = left.GetPixelColor(x, diff.Height / 2);
+                IColor colorRight = right.GetPixelColor(x, diff.Height / 2);
 
                 int yVal = yMax;
                 if (colorRight.R > 0)

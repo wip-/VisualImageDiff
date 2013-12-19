@@ -27,6 +27,10 @@
             <Button Name="ButtonSaveResultLeft" Click="ButtonSaveResultLeft_Click" Margin="2,2,2,2">Save result left</Button>
             <Button Name="ButtonSaveResultRight" Click="ButtonSaveResultRight_Click" Margin="2,2,2,2">Save result right</Button>
         </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2"  VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Button Name="ButtonSaveCurveValuesLeft" Click="ButtonSaveCurveValuesLeft_Click" Margin="2,2,2,2">Save curve values left</Button>
+            <Button Name="ButtonSaveCurveValuesRight" Click="ButtonSaveCurveValuesRight_Click" Margin="2,2,2,2">Save curve values right</Button>
+        </StackPanel>        
         <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" >
             <Slider Name="SliderZoomOut" 
                 Minimum="0.01" Maximum="1" Value="1"

@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Diagnostics;
+using VisualImageDiff.ColorStructures;
 
 namespace VisualImageDiff
 {
     public static class Helper
     {
-        static public int GetComponentsNumber(PixelFormat pixelFormat)
+        static public int GetBytesPerPixel(PixelFormat pixelFormat)
         {
             switch (pixelFormat)
             {
@@ -24,12 +21,32 @@ namespace VisualImageDiff
                 case PixelFormat.Format32bppArgb:
                     return 4;
 
+                case PixelFormat.Format64bppArgb:
+                    return 8;
+
                 default:
                     Debug.Assert(false);
                     return 0;
             }
         }
 
+        static public bool HasAlphaChannel(PixelFormat pixelFormat)
+        {
+            switch (pixelFormat)
+            {
+                case PixelFormat.Format8bppIndexed:
+                case PixelFormat.Format24bppRgb:
+                    return false;
+
+                case PixelFormat.Format32bppArgb:
+                case PixelFormat.Format64bppArgb:
+                    return true;
+
+                default:
+                    Debug.Assert(false);
+                    return false;
+            }
+        }
 
         static public Color GetColorDiff(Color left, Color right)
         {
@@ -58,8 +75,13 @@ namespace VisualImageDiff
         public static double Clamp0_255(this double value)
         {
             return value.Clamp(0, 255);
-
         }
+
+        public static int Clamp0_65535(this int value)
+        {
+            return value.Clamp(0, 65535);
+        }
+
         //http://stackoverflow.com/a/2683487/758666
         public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>
         {
@@ -71,14 +93,14 @@ namespace VisualImageDiff
 
 
         //http://stackoverflow.com/a/1626175/758666
-        public static void ColorToHSV(Color color, out double hue, out double saturation, out double value)
+        public static void ColorToHSV(IColor color, out double hue, out double saturation, out double value)
         {
-            int max = Math.Max(color.R, Math.Max(color.G, color.B));
-            int min = Math.Min(color.R, Math.Min(color.G, color.B));
+            double max = Math.Max(color.RNormalized, Math.Max(color.GNormalized, color.BNormalized));
+            double min = Math.Min(color.RNormalized, Math.Min(color.GNormalized, color.BNormalized));
 
-            hue = color.GetHue();
+            hue = color.ToMsdnColor().GetHue();
             saturation = (max == 0) ? 0 : 1d - (1d * min / max);
-            value = max / 255d;
+            value = max;
         }
 
 
@@ -111,9 +133,9 @@ namespace VisualImageDiff
 
         // http://en.wikipedia.org/wiki/Luminance_(relative)
         // weights each R, G, B component. Sum of params is 1.00
-        // so result is between [0, 255]
+        // result is between [0, 1]
         // alternative formulas http://stackoverflow.com/a/596243/758666
-        public static double GetRelativeLuminance(Color c)
+        public static double GetRelativeLuminance(IColor c)
         {
             //return 
             //    0.2126 * (double)c.R +
@@ -126,17 +148,25 @@ namespace VisualImageDiff
             //    0.114 * (double)c.B;
 
             return Math.Sqrt(
-                0.241 * (double)c.R * (double)c.R +
-                0.691 * (double)c.G * (double)c.G +
-                0.068 * (double)c.B * (double)c.B);
-
+                0.241 * c.RNormalized * c.RNormalized +
+                0.691 * c.GNormalized * c.GNormalized +
+                0.068 * c.BNormalized * c.BNormalized);
         }
 
 
 
 
-
-
+        /// <summary>
+        /// Linearly interpolates over the value x between the points (xMin, yMin) and (xMax, yMax).
+        /// </summary>
+        public static double Lerp(
+            double x,
+            double xMin, double xMax,
+            double yMin, double yMax)
+        {
+            double ratio = (x - xMin) / (xMax - xMin);
+            return yMin + ratio * (yMax - yMin);
+        }
 
 
 

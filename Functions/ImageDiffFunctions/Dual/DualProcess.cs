@@ -9,22 +9,24 @@ namespace VisualImageDiff.DiffFunctions
     public class DualProcess<T> : CachedDualDiffFunction
         where T : IImageFunction, new()
     {
-        private T t;
+        public T LeftImageFunction { get; protected set; }
+        public T RightImageFunction { get; protected set; }
 
         public DualProcess()
         {
-            t = new T();
+            LeftImageFunction = new T();
+            RightImageFunction = new T();
         }
 
-        public override String Name { get { return t.Name; } }
+        public override String Name { get { return LeftImageFunction.Name; } }
 
         /// <summary>
         /// Do the actual work
         /// </summary>
         protected override void FillDiffPair(BitmapInfoPair bitmapInfoPair, BitmapInfo left, BitmapInfo right)
         {
-            t.FillImage(left, bitmapInfoPair.left);
-            t.FillImage(right, bitmapInfoPair.right);
+            LeftImageFunction.FillImage(left, bitmapInfoPair.left);
+            RightImageFunction.FillImage(right, bitmapInfoPair.right);
         }
     }
 }

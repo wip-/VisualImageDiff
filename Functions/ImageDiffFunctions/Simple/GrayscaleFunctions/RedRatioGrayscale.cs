@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Drawing;
+using VisualImageDiff.ColorStructures;
 
 namespace VisualImageDiff.DiffFunctions
 {
@@ -7,7 +7,7 @@ namespace VisualImageDiff.DiffFunctions
     {
         public override String Name { get { return "Red Ratio Grayscale"; } }
 
-        protected override byte GetGrayScaleDiff(Color left, Color right)
+        protected override byte GetGrayScaleDiff(IColor left, IColor right)
         {
             double r = (double)right.R / (double)left.R;    // belongs to [0, infinite]
 

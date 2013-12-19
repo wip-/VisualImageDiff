@@ -5,24 +5,19 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Data;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Runtime.InteropServices;
 using System.Windows.Media;
-using System.Windows.Controls;
-using VisualImageDiff.DiffFunctions;
-using System.Runtime.CompilerServices;
-using System.ComponentModel;
+using System.Windows.Media.Imaging;
 using Microsoft.Win32;
-using VisualImageDiff.ImageFunctions;
+using VisualImageDiff.ColorStructures;
+using VisualImageDiff.DiffFunctions;
+using VisualImageDiff.Functions;
 using VisualImageDiff.Functions.ColorFunctions;
+using VisualImageDiff.ImageFunctions;
 
 
 
@@ -85,7 +80,7 @@ namespace VisualImageDiff
         private void HardCodedQuickBatchMode2()
         {
             String errorMessage;
-            String folderRoot = ".";
+            String folderRoot = ".\\";
             String[] files = Directory.GetFiles(folderRoot + "outputs", "*.png", SearchOption.TopDirectoryOnly);
             Bitmap original = LoadBitmap(folderRoot + "myImage.png", out errorMessage);
             BitmapInfo originalData = new BitmapInfo(original);
@@ -101,9 +96,6 @@ namespace VisualImageDiff
                 if (!Directory.Exists(folderRoot + folders[i]))
                     Directory.CreateDirectory(folderRoot + folders[i]);
             }
-
-
-            IDiffFunction curveFunc = new MsdnHsbHDiffGrayscale();
             
             foreach (var file in files)
             {
@@ -123,9 +115,59 @@ namespace VisualImageDiff
             }
         }
 
+
+        private void HardCodedQuickBatchMode3()
+        {
+            String errorMessage;
+            String folderRoot = ".\\";
+            String[] files = Directory.GetFiles(folderRoot + "outputs", "*.png", SearchOption.TopDirectoryOnly);
+            Bitmap original = LoadBitmap(folderRoot + "myImage.png", out errorMessage);
+            BitmapInfo originalData = new BitmapInfo(original);
+
+            var diffFunction = new DualProcess<CurveImageFunction<RgbRComponent>>();
+            String csvFileName = folderRoot + "reds.csv";
+            List<double[]> columns = new List<double[]>();
+
+            //double[] firstColumn = new double[original.Width];
+            //for(int x = 0; x<original.Width; ++x)
+            //    firstColumn[x] = x;
+            //columns.Add(firstColumn);
+
+            foreach (var file in files)
+            {
+                Bitmap toCompare = LoadBitmap(file, out errorMessage);
+                BitmapInfo dataToCompare = new BitmapInfo(toCompare);
+                diffFunction.CreateDiff(originalData, dataToCompare, CachedDualDiffFunction.EnableCache.False);
+                ICurveFunction curveFunction = diffFunction.RightImageFunction;
+                columns.Add(curveFunction.CurveValues);
+            }
+
+            using (StreamWriter file = new StreamWriter(csvFileName))
+            {
+                // chart corner
+                file.Write("Hue");
+
+                // chart headers
+                for(int c = 0; c< columns.Count; ++c)
+                    file.Write(", Density {0}%", c);
+
+                // chart contents
+                for (int x = 0; x < original.Width; ++x)
+                {
+                    // first column: hue
+                    file.Write("\n{0}", x);
+
+                    // next columns: component value
+                    for (int c = 0; c < columns.Count; ++c)
+                        file.Write(", {0}", columns[c][x]);
+                }
+            }
+            Process.Start("explorer.exe", @"/select,""" + csvFileName + "\"");
+        }
+
         public MainWindow()
         {
-            //HardCodedQuickBatchMode2();
+            //HardCodedQuickBatchMode3();
 
             InitializeComponent();
             DataContext = connectionViewModel;
@@ -144,6 +186,8 @@ namespace VisualImageDiff
         private void ImageLeft_Drop(object sender, DragEventArgs e)
         {
             String msg = LoadImage(ImageLeft, ref bitmapLeft, e);
+
+            // TODO use async / await
 
             if (msg != null)
             {
@@ -422,7 +466,7 @@ namespace VisualImageDiff
             {
                 if (bitmapInfos[i] == null) continue;
 
-                System.Drawing.Color color = bitmapInfos[i].GetPixelColor(x, y);
+                IColor color = bitmapInfos[i].GetPixelColor(x, y);
                 labels[i].Content = Helpers.ColorConversion.GetColorsString(color);
             }
         }
@@ -430,15 +474,15 @@ namespace VisualImageDiff
 
         private void ButtonSaveResultLeft_Click(object sender, RoutedEventArgs e)
         {
-            ButtonSaveResult(bitmapDiffLeft);
+            ButtonSaveResultImage(bitmapDiffLeft);
         }
 
         private void ButtonSaveResultRight_Click(object sender, RoutedEventArgs e)
         {
-            ButtonSaveResult(bitmapDiffRight);
+            ButtonSaveResultImage(bitmapDiffRight);
         }
 
-        private void ButtonSaveResult(Bitmap bitmap)
+        private void ButtonSaveResultImage(Bitmap bitmap)
         {
             if (bitmap == null)
                 return;
@@ -465,9 +509,62 @@ namespace VisualImageDiff
             return Path.GetFileNameWithoutExtension(filename) + addChars + Path.GetExtension(filename);
         }
 
+        private void ButtonSaveCurveValuesLeft_Click(object sender, RoutedEventArgs e)
+        {
+            ButtonSaveCurveValues(
+                (IDiffFunction diffFunction) => (connectionViewModel.SelectedDiffFunction as dynamic).LeftImageFunction );
+        }
 
+        private void ButtonSaveCurveValuesRight_Click(object sender, RoutedEventArgs e)
+        {
+            ButtonSaveCurveValues(
+                (IDiffFunction diffFunction) => (connectionViewModel.SelectedDiffFunction as dynamic).RightImageFunction);
+        }
 
+        private delegate ICurveFunction CurveFunctionSelector(IDiffFunction diffFunction);
 
+        private void ButtonSaveCurveValues(CurveFunctionSelector curveFunctionSelector)
+        {
+            Type selectionType = connectionViewModel.SelectedDiffFunction.GetType();
+            if (selectionType.IsGenericType)
+            {
+                if (selectionType.GetGenericTypeDefinition() == typeof(DualProcess<>))
+                {
+                    // SelectedDiffFunction is a DualProcess<T>
+
+                    foreach (Type typeArgument in selectionType.GetGenericArguments())
+                    {
+                        if (typeArgument.GetInterfaces().Contains(typeof(ICurveFunction)))
+                        {
+                            // argument T in DualProcess<T> inherits from ICurveFunction
+
+                            ICurveFunction curveFunction = curveFunctionSelector(connectionViewModel.SelectedDiffFunction);
+                            SaveToCsv(curveFunction.CurveValues);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void SaveToCsv(double[] values)
+        {
+            SaveFileDialog saveDialog = new SaveFileDialog();
+            saveDialog.InitialDirectory = Path.GetDirectoryName(imageSourceFileNameFirst);
+            saveDialog.FileName = Path.GetFileNameWithoutExtension(imageSourceFileNameFirst) + "-curve";
+            saveDialog.Filter = "comma-separated values (.csv)|*.csv";
+            saveDialog.DefaultExt = ".csv";
+            
+            if (saveDialog.ShowDialog().Value)
+            {
+                using (StreamWriter file = new StreamWriter(saveDialog.FileName))
+                {
+                    foreach (double value in values)
+                        file.WriteLine(value);
+                }
+                Process.Start("explorer.exe", @"/select,""" + saveDialog.FileName + "\"");
+            }
+        }
 
     }
 

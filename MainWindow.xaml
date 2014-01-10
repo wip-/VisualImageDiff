@@ -17,12 +17,15 @@
         </Grid.ColumnDefinitions>
 
         <Label Name="LabelInfo" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">Drop source images</Label>
-        <ComboBox Name="ComboBoxDiffFunction" 
+        <StackPanel Grid.Row="0" Grid.Column="1">
+            <ComboBox Name="ComboBoxDiffFunction" 
                   ItemsSource="{Binding Path=DiffFunctions}" DisplayMemberPath="Name" SelectedValue="{Binding SelectedDiffFunction}"
-                  Grid.Row="0" Grid.Column="1" 
                   Margin="2,2,2,2" MaxWidth="256" MaxHeight="40" VerticalContentAlignment="Center"
                   SelectionChanged="ComboBoxDiffFunction_SelectionChanged">
-        </ComboBox>
+            </ComboBox>
+            <Slider Name="SliderParam" Minimum="0" Maximum="1" Value="0.5" ValueChanged="SliderParam_ValueChanged"/>
+        </StackPanel>
+        
         <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2"  VerticalAlignment="Center" HorizontalAlignment="Center">
             <Button Name="ButtonSaveResultLeft" Click="ButtonSaveResultLeft_Click" Margin="2,2,2,2">Save result left</Button>
             <Button Name="ButtonSaveResultRight" Click="ButtonSaveResultRight_Click" Margin="2,2,2,2">Save result right</Button>
@@ -38,12 +41,13 @@
             <Slider Name="SliderZoomIn" 
                 Minimum="1" Maximum="100" Value="1"
                 ValueChanged="SliderZoomIn_ValueChanged"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left">
+                <Button Name="ButtonResetZoom" Click="ButtonResetZoom_Click">Reset zoom</Button>
+                <Label Name="LabelZoom" Width="50">1</Label>
+            </StackPanel>
         </StackPanel>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left">
-            <Label Name="LabelZoom" Width="50">1</Label>
-            <Button Name="ButtonResetZoom" Click="ButtonResetZoom_Click">Reset zoom</Button>
-        </StackPanel>
+
         <!--<ComboBox Grid.Row="0" Grid.Column="2" Margin="5,5,5,5"/>-->
         
         <ScrollViewer Name="ScrollViewerImageLeft"

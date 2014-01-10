@@ -16,6 +16,8 @@ namespace VisualImageDiff
         {
             diffFunctions = new List<IDiffFunction>();
 
+            diffFunctions.Add(new Blend());
+
             diffFunctions.Add(new ColorDiffFunction<RgbRComponent>());
             diffFunctions.Add(new ColorDiffFunction<RgbGComponent>());
             diffFunctions.Add(new ColorDiffFunction<RgbBComponent>());

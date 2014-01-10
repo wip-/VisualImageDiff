@@ -121,11 +121,11 @@ namespace VisualImageDiff
             String errorMessage;
             String folderRoot = ".\\";
             String[] files = Directory.GetFiles(folderRoot + "outputs", "*.png", SearchOption.TopDirectoryOnly);
-            Bitmap original = LoadBitmap(folderRoot + "myImage.png", out errorMessage);
+            Bitmap original = LoadBitmap(folderRoot + "hueGradation.png", out errorMessage);
             BitmapInfo originalData = new BitmapInfo(original);
 
-            var diffFunction = new DualProcess<CurveImageFunction<RgbRComponent>>();
-            String csvFileName = folderRoot + "reds.csv";
+            var diffFunction = new DualProcess<CurveImageFunction<RgbGComponent>>();
+            String csvFileName = folderRoot + "greens.csv";
             List<double[]> columns = new List<double[]>();
 
             //double[] firstColumn = new double[original.Width];
@@ -216,6 +216,14 @@ namespace VisualImageDiff
             }
         }
 
+        private void SliderParam_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            CreateDiff();
+
+            // refresh scrollviewer zooms
+            Zoom(GetCurrentZoom());
+        }
+
         private void ComboBoxDiffFunction_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             CreateDiff();
@@ -231,6 +239,11 @@ namespace VisualImageDiff
                 ISimpleDiffFunction simpleDiff = connectionViewModel.SelectedDiffFunction as ISimpleDiffFunction;
                 if (simpleDiff != null)
                 {
+                    IParamFunction paramFunction = simpleDiff as IParamFunction;
+                    if (paramFunction != null)
+                        paramFunction.Parameter = SliderParam.Value;
+
+
                     bitmapInfoDiffLeft = simpleDiff.CreateDiff(bitmapInfoLeft, bitmapInfoRight);
 
                     bitmapDiffLeft = bitmapInfoDiffLeft.ToBitmap();
@@ -379,6 +392,9 @@ namespace VisualImageDiff
 
         private double GetCurrentZoom()
         {
+            if (SliderZoomIn == null || SliderZoomOut == null)
+                return 1;
+
             if (SliderZoomIn.Value != 1)
                 return SliderZoomIn.Value;
             if (SliderZoomOut.Value!=1)
@@ -565,6 +581,7 @@ namespace VisualImageDiff
                 Process.Start("explorer.exe", @"/select,""" + saveDialog.FileName + "\"");
             }
         }
+
 
     }
 

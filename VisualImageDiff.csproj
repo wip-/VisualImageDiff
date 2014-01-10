@@ -88,9 +88,11 @@
     <Compile Include="Functions\ICurveFunction.cs" />
     <Compile Include="Functions\ImageDiffFunctions\Dual\CachedDualDiffFunction.cs" />
     <Compile Include="Functions\ImageDiffFunctions\Dual\DualProcess.cs" />
+    <Compile Include="Functions\ImageDiffFunctions\Simple\Blend.cs" />
     <Compile Include="Functions\ImageFunctions\Curves\DerivativeCurveImageFunction.cs" />
     <Compile Include="ColorStructures\Color32.cs" />
     <Compile Include="ColorStructures\Color64.cs" />
+    <Compile Include="Functions\ImageDiffFunctions\Simple\ParamFunctions\BaseParamFunction.cs" />
     <Compile Include="Helpers\ConnectionViewModel.cs" />
     <Compile Include="Functions\ImageDiffFunctions\Simple\CachedDiffFunction.cs" />
     <Compile Include="Functions\ImageDiffFunctions\Simple\CurveDiffFunctions\CurveDiffFunction.cs" />

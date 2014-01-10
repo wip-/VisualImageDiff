@@ -468,7 +468,10 @@ namespace VisualImageDiff.Helpers
     {
         public static String GetColorsString(IColor color)
         {
-            String str = String.Format("[RGB] R={0:D3}, G={1:D3}, B={2:D3}\n", color.ToMsdnColor().R, color.ToMsdnColor().G, color.ToMsdnColor().B);
+
+            String str = String.Format("A={0:D3}\n", color.ToMsdnColor().A);
+
+            str += String.Format("[RGB] R={0:D3}, G={1:D3}, B={2:D3}\n", color.ToMsdnColor().R, color.ToMsdnColor().G, color.ToMsdnColor().B);
 
             str += String.Format("[HSB　MSDN] H={0:000.00}, S={1:0.000}, B={2:0.000}\n", 
                 color.ToMsdnColor().GetHue(), color.ToMsdnColor().GetSaturation(), color.ToMsdnColor().GetBrightness());

@@ -165,9 +165,34 @@ namespace VisualImageDiff
             Process.Start("explorer.exe", @"/select,""" + csvFileName + "\"");
         }
 
+
+
+        private void HardCodedQuickBatchMode4()
+        {
+            String errorMessage;
+            String folderRoot = @".\";
+            String[] files = Directory.GetFiles(folderRoot + @"images-in\", "*.png", SearchOption.TopDirectoryOnly);
+            Bitmap original = LoadBitmap(folderRoot + "refImage.png", out errorMessage);
+            BitmapInfo originalData = new BitmapInfo(original);
+
+            IImageFunction curveFunction = new CurveImageFunction<MsdnHsbHComponent>();
+
+            foreach (var file in files)
+            {
+                Bitmap toLoad = LoadBitmap(file, out errorMessage);
+                BitmapInfo dataToLoad = new BitmapInfo(toLoad);
+                BitmapInfo dataCurve = new BitmapInfo(toLoad);
+
+                curveFunction.FillImage(dataToLoad, dataCurve);
+                String newFileName = folderRoot + @"curves-out\" + Path.GetFileNameWithoutExtension(file) + ".png";
+                dataCurve.ToBitmap().Save(newFileName, ImageFormat.Png);
+            }
+        }
+
+
         public MainWindow()
         {
-            //HardCodedQuickBatchMode3();
+            //HardCodedQuickBatchMode4();
 
             InitializeComponent();
             DataContext = connectionViewModel;

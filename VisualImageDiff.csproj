@@ -89,6 +89,7 @@
     <Compile Include="Functions\ImageDiffFunctions\Dual\CachedDualDiffFunction.cs" />
     <Compile Include="Functions\ImageDiffFunctions\Dual\DualProcess.cs" />
     <Compile Include="Functions\ImageDiffFunctions\Simple\Blend.cs" />
+    <Compile Include="Functions\ImageDiffFunctions\Simple\Prototype.cs" />
     <Compile Include="Functions\ImageFunctions\Curves\DerivativeCurveImageFunction.cs" />
     <Compile Include="ColorStructures\Color32.cs" />
     <Compile Include="ColorStructures\Color64.cs" />
